@@ -36,3 +36,6 @@ npx http-server dist
 ```
 
 5. Connect to the local web server on a web browser. (In most cases, the URL for connecting to the server would be `http://localhost:8080`. For the exact URL, it is supposed to be found on the printed messages on your terminal.)
+
+
+## If pikachu-valleyball remains on `http://localhost:8080`
