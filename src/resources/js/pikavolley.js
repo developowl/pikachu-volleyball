@@ -125,7 +125,7 @@ export class PikachuVolleyball {
       this.slowMotionNumOfSkippedFrames++;
       if (
         this.slowMotionNumOfSkippedFrames %
-          Math.round(this.normalFPS / this.slowMotionFPS) !==
+        Math.round(this.normalFPS / this.slowMotionFPS) !==
         0
       ) {
         return;
@@ -371,10 +371,14 @@ export class PikachuVolleyball {
       this.roundEnded === false &&
       this.gameEnded === false
     ) {
-      if (this.physics.ball.punchEffectX < GROUND_HALF_WIDTH) {
+      if (this.physics.ball.punchEffectX < GROUND_HALF_WIDTH) { //
         this.isPlayer2Serve = true;
         this.scores[1] += 1;
-        if (this.scores[1] >= this.winningScore) {
+
+        if (
+          this.scores[1] >= this.winningScore &&
+          this.scores[1] - this.scores[0] >= 2
+        ) {
           this.gameEnded = true;
           this.physics.player1.isWinner = false;
           this.physics.player2.isWinner = true;
@@ -384,7 +388,11 @@ export class PikachuVolleyball {
       } else {
         this.isPlayer2Serve = false;
         this.scores[0] += 1;
-        if (this.scores[0] >= this.winningScore) {
+
+        if (
+          this.scores[0] >= this.winningScore &&
+          this.scores[0] - this.scores[1] >= 2
+        ) {
           this.gameEnded = true;
           this.physics.player1.isWinner = true;
           this.physics.player2.isWinner = false;
