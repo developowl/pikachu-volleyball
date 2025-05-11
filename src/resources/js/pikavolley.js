@@ -22,6 +22,9 @@ export class PikachuVolleyball {
    * @param {Object.<string,LoaderResource>} resources resources property of the PIXI.Loader object which is used for loading the game resources
    */
   constructor(stage, resources) {
+
+    this.isScoreSubmitted = false;
+
     this.view = {
       intro: new IntroView(resources),
       menu: new MenuView(resources),
@@ -40,14 +43,20 @@ export class PikachuVolleyball {
     this.audio = new PikaAudio(resources);
     this.physics = new PikaPhysics(true, true);
     this.keyboardArray = [
-      new PikaKeyboard('KeyD', 'KeyG', 'KeyR', 'KeyV', 'KeyZ', 'KeyF'), // for player1
-      new PikaKeyboard( // for player2
+      new PikaKeyboard( // for player1(Arrow + ',') -> 부스 참가자(왼쪽 피카츄)
         'ArrowLeft',
         'ArrowRight',
         'ArrowUp',
         'ArrowDown',
-        'Enter'
+        'Comma'
       ),
+      new PikaKeyboard( // for player2 -> Greedy 인원(오른쪽 피카츄)
+        'KeyF', // left
+        'KeyH', // right
+        'KeyT', // up
+        'KeyG', // down
+        'KeyZ', // powerhit
+      )
     ];
 
     /** @type {number} game fps */
@@ -68,7 +77,19 @@ export class PikachuVolleyball {
     /** @type {number[]} [0] for player 1 score, [1] for player 2 score */
     this.scores = [0, 0];
     /** @type {number} winning score: if either one of the players reaches this score, game ends */
+
+
+    /*
+    <-------------------------------->
+    승리 조건 점수 조작 부분(점수 계산은 승리 조건 점수 기준으로 계산하므로 winningScore만 수정해주세요.
+    */
     this.winningScore = 7;
+    /*
+    <-------------------------------->
+    승리 조건 점수 조작 부분(점수 계산은 승리 조건 점수 기준으로 계산하므로 winningScore만 수정해주세요.
+    */
+
+
 
     /** @type {boolean} Is the game ended? */
     this.gameEnded = false;
@@ -332,9 +353,10 @@ export class PikachuVolleyball {
       this.keyboardArray[0].powerHit === 1 ||
       this.keyboardArray[1].powerHit === 1;
 
+    // both 컴퓨터 모드에서 아무 키나 누르면 타이틀로
     if (
-      this.physics.player1.isComputer === true &&
-      this.physics.player2.isComputer === true &&
+      this.physics.player1.isComputer &&
+      this.physics.player2.isComputer &&
       pressedPowerHit
     ) {
       this.frameCounter = 0;
@@ -343,15 +365,16 @@ export class PikachuVolleyball {
       return;
     }
 
+    // 물리 연산 & 렌더링
     const isBallTouchingGround = this.physics.runEngineForNextFrame(
       this.keyboardArray
     );
-
     this.playSoundEffect();
     this.view.game.drawPlayersAndBall(this.physics);
     this.view.game.drawCloudsAndWave();
 
-    if (this.gameEnded === true) {
+    // 이미 종료된 상태라면 게임 종료 애니메이션만 처리
+    if (this.gameEnded) {
       this.view.game.drawGameEndMessage(this.frameCounter);
       this.frameCounter++;
       if (
@@ -365,16 +388,18 @@ export class PikachuVolleyball {
       return;
     }
 
+    // 공이 땅에 닿았고, 라운드가 아직 끝나지 않았고, 실제 게임 모드인 경우
     if (
       isBallTouchingGround &&
-      this._isPracticeMode === false &&
-      this.roundEnded === false &&
-      this.gameEnded === false
+      !this._isPracticeMode &&
+      !this.roundEnded &&
+      !this.gameEnded
     ) {
-      if (this.physics.ball.punchEffectX < GROUND_HALF_WIDTH) { //
+      // 득점 처리
+      if (this.physics.ball.punchEffectX < GROUND_HALF_WIDTH) {
+        // P2 득점
         this.isPlayer2Serve = true;
-        this.scores[1] += 1;
-
+        this.scores[1]++;
         if (
           this.scores[1] >= this.winningScore &&
           this.scores[1] - this.scores[0] >= 2
@@ -386,9 +411,9 @@ export class PikachuVolleyball {
           this.physics.player2.gameEnded = true;
         }
       } else {
+        // P1 득점
         this.isPlayer2Serve = false;
-        this.scores[0] += 1;
-
+        this.scores[0]++;
         if (
           this.scores[0] >= this.winningScore &&
           this.scores[0] - this.scores[1] >= 2
@@ -400,17 +425,30 @@ export class PikachuVolleyball {
           this.physics.player2.gameEnded = true;
         }
       }
+
+      // 점수판 갱신
       this.view.game.drawScoresToScoreBoards(this.scores);
-      if (this.roundEnded === false && this.gameEnded === false) {
+
+      // 게임 종료 시 3초 뒤 모달 띄우기 (P1 결과 제출)
+      if (this.gameEnded && !this.isScoreSubmitted) {
+        setTimeout(() => {
+          if (!this.isScoreSubmitted) {
+            this.openEndGameModal();
+          }
+        }, 3000);
+      }
+
+      // 슬로모션 처리
+      if (!this.gameEnded) {
         this.slowMotionFramesLeft = this.SLOW_MOTION_FRAMES_NUM;
       }
       this.roundEnded = true;
     }
 
-    if (this.roundEnded === true && this.gameEnded === false) {
-      // if this is the last frame of this round, begin fade out
+    // 라운드 종료 후 페이드 아웃
+    if (this.roundEnded && !this.gameEnded) {
       if (this.slowMotionFramesLeft === 0) {
-        this.view.fadeInOut.changeBlackAlphaBy(1 / 16); // fade out
+        this.view.fadeInOut.changeBlackAlphaBy(1 / 16);
         this.state = this.afterEndOfRound;
       }
     }
@@ -516,7 +554,72 @@ export class PikachuVolleyball {
     this.slowMotionNumOfSkippedFrames = 0;
     this.view.menu.visible = false;
     this.view.game.visible = false;
+    this.isScoreSubmitted = false; // 게임 종료 후 플래그 초기화
     this.state = this.intro;
+  }
+
+  // 1P 보상 점수 계산
+  calculateRewardForPlayer1() {
+    const [p1, p2] = this.scores;
+    // 듀스 진입 기준: winningScore - 1
+    const deuceThreshold = this.winningScore - 1;
+    const isDeuce = Math.min(p1, p2) >= deuceThreshold;
+
+    if (isDeuce) {
+      // 듀스 승리 => winningScore + 1, 듀스 패배 => winningScore
+      return p1 > p2 ? this.winningScore + 1 : this.winningScore;
+    } else {
+      // 듀스 전 승리 => winningScore + 3, 듀스 전 패배 => 현재 득점
+      return p1 > p2 ? this.winningScore + 3 : p1;
+    }
+  }
+
+  openEndGameModal() {
+    this.paused = true;
+    const modal = document.getElementById('endGameModal');
+    modal.style.display = 'flex';
+
+    const submitBtn = modal.querySelector('button.submit');
+    const userInput = modal.querySelector('input.user-id');
+
+    if (!submitBtn || !userInput) return;
+
+    if (!(submitBtn instanceof HTMLButtonElement)) return;
+    if (!(userInput instanceof HTMLInputElement)) return;
+
+    const freshBtn = submitBtn.cloneNode(true);
+    submitBtn.replaceWith(freshBtn);
+
+    freshBtn.addEventListener('click', async () => {
+      const userId = userInput.value;
+      const score = this.calculateRewardForPlayer1();
+
+      await this.submitScore(userId, score);
+      this.isScoreSubmitted = true;
+      modal.style.display = 'none';
+      this.paused = false;
+      this.restart();
+    });
+  }
+
+  // 백엔드로 점수 POST
+  async submitScore(userId, score) {
+    const payload = {
+      gameName: "pikachu-volley",
+      userId: userId,
+      score: score
+    };
+    try {
+      const res = await fetch('/api/result', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      console.log('점수 전송 성공');
+    } catch (e) {
+      console.error('전송 오류:', e);
+    }
   }
 
   /** @return {boolean} */
