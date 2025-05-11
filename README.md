@@ -118,7 +118,7 @@ If the above method does not work:
 2. Navigate to the **Application** tab
 3. In the sidebar, click **Service Workers**
 4. click **See all registrations**
-<img width="1920" alt="Screenshot 2025-05-12 at 01 15 17" src="https://github.com/user-attachments/assets/765f6b58-4cdf-4327-9c6d-83613d0cc056" />
+<img width="1920" alt="Screenshot 2025-05-12 at 03 19 04" src="https://github.com/user-attachments/assets/bd669cf5-faf8-4eb5-8548-939e2028170f" />
 5. Look for the Service Worker registered for `localhost:8080`
 6. Click **Unregister**
 <img width="1920" alt="Screenshot 2025-05-12 at 01 15 35" src="https://github.com/user-attachments/assets/ba586571-58d3-4a55-ae56-2066f8e4b5af" />
