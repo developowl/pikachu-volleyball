@@ -266,13 +266,14 @@ export class PikachuVolleyball {
       return;
     }
 
-    if (this.noInputFrameCounter >= this.noInputFrameTotal.menu) {
-      this.physics.player1.isComputer = true;
-      this.physics.player2.isComputer = true;
-      this.frameCounter = 0;
-      this.noInputFrameCounter = 0;
-      this.state = this.afterMenuSelection;
-    }
+    // <---------- 일정 시간 이상 입력 없을 경우 자동 AI 모드로 전환(일단 끕시다)---->
+    // if (this.noInputFrameCounter >= this.noInputFrameTotal.menu) {
+    //   this.physics.player1.isComputer = true;
+    //   this.physics.player2.isComputer = true;
+    //   this.frameCounter = 0;
+    //   this.noInputFrameCounter = 0;
+    //   this.state = this.afterMenuSelection;
+    // }
   }
 
   /**
