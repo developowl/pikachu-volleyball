@@ -1,6 +1,8 @@
 /**
  * The Controller part in MVC pattern
  */
+require('dotenv').config();
+
 'use strict';
 import { GROUND_HALF_WIDTH, PikaPhysics } from './physics.js';
 import { MenuView, GameView, FadeInOut, IntroView } from './view.js';
@@ -605,15 +607,21 @@ export class PikachuVolleyball {
 
   // 백엔드로 점수 POST
   async submitScore(userId, score) {
+    const token = process.env.URL_TOKEN;
+
     const payload = {
       gameName: "pikachu-volley",
       userId: userId,
       score: score
     };
     try {
-      const res = await fetch('/api/result', {
+      const res = await fetch('https://0by7j8suf2.execute-api.ap-northeast-2.amazonaws.com/proxy/api/result', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        mode: 'cors',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
         body: JSON.stringify(payload)
       });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
