@@ -63,7 +63,7 @@ export class Wave {
  * @param {Wave} wave
  */
 export function cloudAndWaveEngine(cloudArray, wave) {
-  for (let i = 0; i < 10; i++) {
+  for (let i = 0; i < 5; i++) {
     cloudArray[i].topLeftPointX += cloudArray[i].topLeftPointXVelocity;
     if (cloudArray[i].topLeftPointX > 432) {
       cloudArray[i].topLeftPointX = -68;

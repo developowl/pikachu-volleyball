@@ -18,7 +18,7 @@ import { ASSETS_PATH } from './assets_path.js';
 const TEXTURES = ASSETS_PATH.TEXTURES;
 
 /** @constant @type {number} number of clouds to be rendered */
-const NUM_OF_CLOUDS = 10;
+const NUM_OF_CLOUDS = 5;
 
 /**
  * Class representing intro view where the man with a briefcase mark appears
