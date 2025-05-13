@@ -1,7 +1,6 @@
 /**
  * The Controller part in MVC pattern
  */
-require('dotenv').config();
 
 'use strict';
 import { GROUND_HALF_WIDTH, PikaPhysics } from './physics.js';

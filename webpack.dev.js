@@ -5,6 +5,10 @@ module.exports = merge(common, {
   mode: 'development',
   devtool: 'inline-source-map',
   devServer: {
-    static: './dist',
+    static: {
+      directory: './dist',
+    },
+    port: 8080,
+    hot: true,
   },
 });
