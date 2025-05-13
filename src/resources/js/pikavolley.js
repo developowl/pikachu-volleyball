@@ -84,7 +84,7 @@ export class PikachuVolleyball {
     <-------------------------------->
     승리 조건 점수 조작 부분(점수 계산은 승리 조건 점수 기준으로 계산하므로 winningScore만 수정해주세요.
     */
-    this.winningScore = 3;
+    this.winningScore = 7;
     /*
     <-------------------------------->
     승리 조건 점수 조작 부분(점수 계산은 승리 조건 점수 기준으로 계산하므로 winningScore만 수정해주세요.
