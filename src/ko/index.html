@@ -424,10 +424,22 @@
     <div id="endGameModal">
       <div class="modal-content">
         <h2>게임 종료！</h2>
-        <input type="text" class="user-id" placeholder="Id를 입력해주세요" />
+
+        <!-- 문장 안에 입력칸과 점수 표시 스팬 추가 -->
+        <p class="final-message">
+          <input
+            type="text"
+            class="user-id-inline"
+            placeholder="ID"
+          />
+          피카츄의 최종 점수는
+          <span class="js-score-value">0</span>점 입니다!
+        </p>
+
         <button class="submit">제출</button>
       </div>
     </div>
+
 
     <script type="module">
       /*

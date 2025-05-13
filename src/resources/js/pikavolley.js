@@ -52,10 +52,10 @@ export class PikachuVolleyball {
         'KeyZ'
       ),
       new PikaKeyboard( // for player2 -> Greedy 인원(오른쪽 피카츄)
-        'KeyL',      // left  - L
-        'Quote',     // right - '
-        'KeyP',      // up    - P
-        'Semicolon', // down  - ;
+        'KeyK',      // left  - K
+        'Semicolon',     // right - ;
+        'KeyO',      // up    - O
+        'KeyL', // down  - L
         'KeyF'       // powerhit - F
       )
     ];
@@ -84,7 +84,7 @@ export class PikachuVolleyball {
     <-------------------------------->
     승리 조건 점수 조작 부분(점수 계산은 승리 조건 점수 기준으로 계산하므로 winningScore만 수정해주세요.
     */
-    this.winningScore = 7;
+    this.winningScore = 3;
     /*
     <-------------------------------->
     승리 조건 점수 조작 부분(점수 계산은 승리 조건 점수 기준으로 계산하므로 winningScore만 수정해주세요.
@@ -579,56 +579,101 @@ export class PikachuVolleyball {
   openEndGameModal() {
     this.paused = true;
     const modal = document.getElementById('endGameModal');
+    const msgContainer = modal.querySelector('.final-message');
+
+    msgContainer.innerHTML = `
+    <input
+      type="text"
+      class="user-id-inline"
+      placeholder="ID"
+    />
+    피카츄의 최종 점수는 "
+    <span class="js-score-value">0</span>점" 입니다!
+  `;
+
+    const inlineInput = /** @type {HTMLInputElement|null} */ (
+      msgContainer.querySelector('input.user-id-inline')
+    );
+    const scoreSpan = /** @type {HTMLElement|null} */ (
+      msgContainer.querySelector('.js-score-value')
+    );
+    let submitBtn = /** @type {HTMLButtonElement|null} */ (
+      modal.querySelector('button.submit')
+    );
+    if (!modal || !inlineInput || !scoreSpan || !submitBtn) return;
+
+    const score = this.calculateRewardForPlayer1();
+    scoreSpan.textContent = String(score);
     modal.style.display = 'flex';
 
-    const submitBtn = modal.querySelector('button.submit');
-    const userInput = modal.querySelector('input.user-id');
-
-    if (!submitBtn || !userInput) return;
-
-    if (!(submitBtn instanceof HTMLButtonElement)) return;
-    if (!(userInput instanceof HTMLInputElement)) return;
-
-    const freshBtn = submitBtn.cloneNode(true);
+    // 이전에 붙은 이벤트 핸들러 제거 + disabled 해제
+    const freshBtn = /** @type {HTMLButtonElement} */ (
+      submitBtn.cloneNode(true)
+    );
+    freshBtn.style.display = '';
+    freshBtn.disabled = false;
     submitBtn.replaceWith(freshBtn);
 
     freshBtn.addEventListener('click', async () => {
-      const userId = userInput.value;
-      const score = this.calculateRewardForPlayer1();
+      const userId = inlineInput.value.trim() || '익명';
+      const ok = await this.submitScore(userId, score);
 
-      await this.submitScore(userId, score);
-      this.isScoreSubmitted = true;
-      modal.style.display = 'none';
-      this.paused = false;
-      this.restart();
+      if (ok) {
+        this.isScoreSubmitted = true;
+        inlineInput.replaceWith(document.createTextNode(userId));
+        inlineInput.style.display = 'none';
+        freshBtn.style.display = 'none';
+        freshBtn.disabled = true;
+        setTimeout(() => {
+          modal.style.display = 'none';
+          this.paused = false;
+          this.restart();
+        }, 3000);
+      } else {
+        alert(
+          '사용자 식별자가 올바르지 않거나\n통신 오류가 발생했습니다.\n다시 입력해주세요.'
+        );
+        inlineInput.value = '';
+        inlineInput.focus();
+      }
     });
   }
 
-  // 백엔드로 점수 POST
   async submitScore(userId, score) {
     const token = process.env.URL_TOKEN;
+    const payload = { gameName: 'pikachu-volley', userId, score };
 
-    const payload = {
-      gameName: "pikachu-volley",
-      userId: userId,
-      score: score
-    };
+    let res;
     try {
-      const res = await fetch('https://0by7j8suf2.execute-api.ap-northeast-2.amazonaws.com/proxy/api/result', {
-        method: 'POST',
-        mode: 'cors',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(payload)
-      });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      console.log('점수 전송 성공');
-    } catch (e) {
-      console.error('전송 오류:', e);
+      res = await fetch(
+        'https://0by7j8suf2.execute-api.ap-northeast-2.amazonaws.com/proxy/api/result',
+        {
+          method: 'POST',
+          mode: 'cors',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(payload),
+        }
+      );
+    } catch (networkErr) {
+      console.error('네트워크 오류:', networkErr);
+      return false;
     }
+
+    // 200 OK 또는 201 Created 둘 다 정상 처리
+    if (res.status === 200 || res.status === 201) {
+      console.log(`점수 전송 성공 (HTTP ${res.status})`);
+      return true;
+    }
+
+    // 그 외는 모두 에러로 간주
+    const errText = await res.text();
+    console.error(`서버 응답 오류 HTTP ${res.status}: ${errText}`);
+    return false;
   }
+
 
   /** @return {boolean} */
   get isPracticeMode() {
