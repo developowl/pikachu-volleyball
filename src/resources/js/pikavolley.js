@@ -49,14 +49,14 @@ export class PikachuVolleyball {
         'ArrowRight',
         'ArrowUp',
         'ArrowDown',
-        'Comma'
+        'KeyZ'
       ),
       new PikaKeyboard( // for player2 -> Greedy 인원(오른쪽 피카츄)
-        'KeyF', // left
-        'KeyH', // right
-        'KeyT', // up
-        'KeyG', // down
-        'KeyZ', // powerhit
+        'KeyL',      // left  - L
+        'Quote',     // right - '
+        'KeyP',      // up    - P
+        'Semicolon', // down  - ;
+        'KeyF'       // powerhit - F
       )
     ];
 
