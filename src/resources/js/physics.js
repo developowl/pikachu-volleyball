@@ -132,6 +132,9 @@ class Player {
     this.isPlayer2 = isPlayer2; // 0xA0
     /** @type {boolean} Is controlled by computer? */
     this.isComputer = isComputer; // 0xA4
+
+    this.spikeCount = 0;
+    this.slideCount = 0;
     this.initializeForNewRound();
 
     /** @type {number} -1: left, 0: no diving, 1: right */
@@ -354,7 +357,8 @@ function physicsEngine(player1, player2, ball, userInputArray) {
           ball,
           player.x,
           userInputArray[i],
-          player.state
+          player.state,
+          player
         );
         player.isCollisionWithBallHappened = true;
       }
@@ -599,6 +603,7 @@ function processPlayerMovementAndSetPlayerPosition(
       // maybe-stereo-sound function FUN_00408470 (0x90) omitted:
       // refer to a detailed comment above about this function
       // maybe-sound code function (playerpointer + 0x90 + 0x10)? omitted
+      player.slideCount++;
       player.sound.chu = true;
     }
   }
@@ -679,7 +684,8 @@ function processCollisionBetweenBallAndPlayer(
   ball,
   playerX,
   userInput,
-  playerState
+  playerState,
+  player
 ) {
   // playerX is pika's x position
   // if collision occur,
@@ -707,6 +713,8 @@ function processCollisionBetweenBallAndPlayer(
 
   // player is jumping and power hitting
   if (playerState === 2) {
+    player.spikeCount++;
+
     if (ball.x < GROUND_HALF_WIDTH) {
       ball.xVelocity = (Math.abs(userInput.xDirection) + 1) * 10;
     } else {
@@ -814,7 +822,7 @@ function letComputerDecideUserInput(player, ball, theOtherPlayer, userInput) {
     if (
       (ball.expectedLandingPointX <= leftBoundary ||
         ball.expectedLandingPointX >=
-          Number(player.isPlayer2) * GROUND_WIDTH + GROUND_HALF_WIDTH) &&
+        Number(player.isPlayer2) * GROUND_WIDTH + GROUND_HALF_WIDTH) &&
       player.computerWhereToStandBy === 0
     ) {
       // If conditions above met, the computer estimates the proper location to stay as the middle point of their side
@@ -853,7 +861,7 @@ function letComputerDecideUserInput(player, ball, theOtherPlayer, userInput) {
       ball.expectedLandingPointX > leftBoundary &&
       ball.expectedLandingPointX < rightBoundary &&
       Math.abs(ball.x - player.x) >
-        player.computerBoldness * 5 + PLAYER_LENGTH &&
+      player.computerBoldness * 5 + PLAYER_LENGTH &&
       ball.x > leftBoundary &&
       ball.x < rightBoundary &&
       ball.y > 174
@@ -918,7 +926,7 @@ function decideWhetherInputPowerHit(player, ball, theOtherPlayer, userInput) {
           (expectedLandingPointX <=
             Number(player.isPlayer2) * GROUND_HALF_WIDTH ||
             expectedLandingPointX >=
-              Number(player.isPlayer2) * GROUND_WIDTH + GROUND_HALF_WIDTH) &&
+            Number(player.isPlayer2) * GROUND_WIDTH + GROUND_HALF_WIDTH) &&
           Math.abs(expectedLandingPointX - theOtherPlayer.x) > PLAYER_LENGTH
         ) {
           userInput.xDirection = xDirection;
@@ -939,7 +947,7 @@ function decideWhetherInputPowerHit(player, ball, theOtherPlayer, userInput) {
           (expectedLandingPointX <=
             Number(player.isPlayer2) * GROUND_HALF_WIDTH ||
             expectedLandingPointX >=
-              Number(player.isPlayer2) * GROUND_WIDTH + GROUND_HALF_WIDTH) &&
+            Number(player.isPlayer2) * GROUND_WIDTH + GROUND_HALF_WIDTH) &&
           Math.abs(expectedLandingPointX - theOtherPlayer.x) > PLAYER_LENGTH
         ) {
           userInput.xDirection = xDirection;

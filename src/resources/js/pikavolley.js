@@ -84,7 +84,7 @@ export class PikachuVolleyball {
     <-------------------------------->
     승리 조건 점수 조작 부분(점수 계산은 승리 조건 점수 기준으로 계산하므로 winningScore만 수정해주세요.
     */
-    this.winningScore = 7;
+    this.winningScore = 5;
     /*
     <-------------------------------->
     승리 조건 점수 조작 부분(점수 계산은 승리 조건 점수 기준으로 계산하므로 winningScore만 수정해주세요.
@@ -132,6 +132,10 @@ export class PikachuVolleyball {
      * The game state which is being rendered now
      * @type {GameState}
      */
+
+    /** @type {number} */
+    this.zKeyPressCount = 0;
+
     this.state = this.intro;
   }
 
@@ -325,7 +329,17 @@ export class PikachuVolleyball {
       this.physics.player1.initializeForNewRound();
       this.physics.player2.initializeForNewRound();
       this.physics.ball.initializeForNewRound(this.isPlayer2Serve);
+
+      this.physics.player1.spikeCount = 0;
+      this.physics.player1.slideCount = 0;
+
+      this.physics.player2.spikeCount = 0;
+      this.physics.player2.slideCount = 0;
+
       this.view.game.drawPlayersAndBall(this.physics);
+
+      this.zKeyPressCount = 0;
+      // this.fKeyPressCount = 0; // -> 혹시 모르니까..
 
       this.view.fadeInOut.setBlackAlphaTo(1); // set black screen
       this.audio.sounds.bgm.play();
@@ -351,6 +365,11 @@ export class PikachuVolleyball {
    * @type {GameState}
    */
   round() {
+    if (this.keyboardArray[0].powerHit === 1) {
+      this.zKeyPressCount++;
+    }
+
+
     const pressedPowerHit =
       this.keyboardArray[0].powerHit === 1 ||
       this.keyboardArray[1].powerHit === 1;
@@ -581,14 +600,31 @@ export class PikachuVolleyball {
     const modal = document.getElementById('endGameModal');
     const msgContainer = modal.querySelector('.final-message');
 
+    const baseScore = this.calculateRewardForPlayer1();
+    const spikeCount = this.physics.player1.spikeCount;
+    const totalZ = this.zKeyPressCount;
+    const slideCount = this.physics.player1.slideCount;
+    const nonSlideZ = totalZ - slideCount;
+    const ratio = nonSlideZ > 0
+      ? (spikeCount / nonSlideZ) * 100
+      : 0;
+    const finalScore = baseScore + ratio;
+    const displayScore = finalScore.toFixed(2);
+    const ratioDisplay = ratio.toFixed(2);
+
     msgContainer.innerHTML = `
     <input
       type="text"
       class="user-id-inline"
       placeholder="ID"
     />
-    피카츄의 최종 점수는 "
-    <span class="js-score-value">0</span>점" 입니다!
+    <p>
+      피카츄의 최종 점수는
+      "<span class="js-score-value">${displayScore}</span>점" 입니다!
+    </p>
+    <p style="color: #F7E600;">
+      (획득 점수: "${baseScore}점" + 비공개 점수: "${ratioDisplay}점")
+    </p>
   `;
 
     const inlineInput = /** @type {HTMLInputElement|null} */ (
@@ -602,11 +638,9 @@ export class PikachuVolleyball {
     );
     if (!modal || !inlineInput || !scoreSpan || !submitBtn) return;
 
-    const score = this.calculateRewardForPlayer1();
-    scoreSpan.textContent = String(score);
+    scoreSpan.textContent = displayScore;
     modal.style.display = 'flex';
 
-    // 이전에 붙은 이벤트 핸들러 제거 + disabled 해제
     const freshBtn = /** @type {HTMLButtonElement} */ (
       submitBtn.cloneNode(true)
     );
@@ -616,12 +650,12 @@ export class PikachuVolleyball {
 
     freshBtn.addEventListener('click', async () => {
       const userId = inlineInput.value.trim() || '익명';
-      const ok = await this.submitScore(userId, score);
+      const formattedScore = parseFloat(displayScore);
+      const ok = await this.submitScore(userId, formattedScore);
 
       if (ok) {
         this.isScoreSubmitted = true;
         inlineInput.replaceWith(document.createTextNode(userId));
-        inlineInput.style.display = 'none';
         freshBtn.style.display = 'none';
         freshBtn.disabled = true;
         setTimeout(() => {
