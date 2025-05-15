@@ -26,19 +26,24 @@ cd pikachu-volleyball
 npm install
 ```
 
-3. Bundle the code.
+3. Please add the token to the .env file.
+```sh
+URL_TOKEN=your_url_token
+```
+
+4. Bundle the code.
 
 ```sh
 npm run build
 ```
 
-4. Run a local web server.
+5. Run a local web server.
 
 ```sh
 npx http-server dist
 ```
 
-5. Connect to the local web server on a web browser. (In most cases, the URL for connecting to the server would be `http://localhost:8080`. For the exact URL, it is supposed to be found on the printed messages on your terminal.)
+6. Connect to the local web server on a web browser. (In most cases, the URL for connecting to the server would be `http://localhost:8080`. For the exact URL, it is supposed to be found on the printed messages on your terminal.)
 
 
 ## 🔧 Refactored Features
@@ -61,20 +66,22 @@ npx http-server dist
 |                  | Move Right | `ArrowRight` |
 |                  | Jump       | `ArrowUp` |
 |                  | Down       | `ArrowDown` |
-|                  | Power Hit  | `Comma ( , )` |
-| Player 2 (Greedy) | Move Left  | `F` |
-|                  | Move Right | `H` |
-|                  | Jump       | `T` |
-|                  | Down       | `G` |
 |                  | Power Hit  | `Z` |
+| Player 2 (Greedy) | Move Left  | `K` |
+|                  | Move Right | `Semi-Colon(;)` |
+|                  | Jump       | `O` |
+|                  | Down       | `L` |
+|                  | Power Hit  | `F` |
 
 ### 4. 🧮 Score Calculation Logic
 The reward score for Player 1 (booth participant) is calculated based on game result:
 
-- 🟢 Win **before deuce** → `10 points` (`winningScore + 3`)
+- 🟢 Win **before deuce** → `8 points` (`winningScore + 3`)
 - 🔴 Lose **before deuce** → actual score (`0` to `winningScore - 2`)
-- 🟢 Win **after deuce** → `8 points` (`winningScore + 1`)
-- 🔴 Lose **after deuce** → `7 points` (`winningScore`)
+- 🟢 Win **after deuce** → `6 points` (`winningScore + 1`)
+- 🔴 Lose **after deuce** → `5 points` (`winningScore`)
+
+- + Proficiency Score (0.00 to 12.00 points)
 
 ### 5. 📤 Score Submission Modal
 - A result modal is now shown when the game ends.
