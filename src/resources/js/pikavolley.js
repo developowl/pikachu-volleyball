@@ -606,8 +606,8 @@ export class PikachuVolleyball {
     const slideCount = this.physics.player1.slideCount;
     const nonSlideZ = totalZ - slideCount;
     const ratio = nonSlideZ > 0
-      ? (spikeCount / nonSlideZ) * 100
-      : 0;
+      ? (spikeCount / nonSlideZ) * 10 + 2
+      : 2.26;
     const finalScore = baseScore + ratio;
     const displayScore = finalScore.toFixed(2);
     const ratioDisplay = ratio.toFixed(2);
@@ -623,7 +623,7 @@ export class PikachuVolleyball {
       "<span class="js-score-value">${displayScore}</span>점" 입니다!
     </p>
     <p style="color: #F7E600;">
-      (획득 점수: "${baseScore}점" + 비공개 점수: "${ratioDisplay}점")
+      (획득 점수: "${baseScore}점" + 실력 점수: "${ratioDisplay}점")
     </p>
   `;
 
