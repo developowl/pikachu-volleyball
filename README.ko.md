@@ -1,61 +1,130 @@
-# 피카츄 배구
+# 🏐 세종대학교 축제 부스용 피카츄 배구 (듀스 룰 포함 버전)
 
-[_English_](README.md) | _&check;_ _Korean(한국어)_
+[_English_](README.md) | _✓_ _Korean(한국어)_
 
-피카츄 배구(対戦ぴかちゅ～　ﾋﾞｰﾁﾊﾞﾚｰ編)는 "(C) SACHI SOFT / SAWAYAKAN Programmers"와 "(C) Satoshi Takenouchi"가 1997년에 만든 윈도우용 게임입니다. 여기에 있는 소스 코드는 이 원조 피카츄 배구 게임의 머신 코드 주요 부분(물리 엔진과 AI 등)을 리버스 엔지니어링하여 자바스크립트로 구현한 것입니다.
+> ℹ️ **면책 조항:**  
+> 이 프로젝트는 프리웨어 게임을 기반으로 하며, 서드파티 개발자가 리버스 엔지니어링한 코드를 활용합니다.  
+> 우리는 해당 리버스 엔지니어로부터 **사용, 수정, 배포에 대한 명확한 허락**을 받았습니다.  
+> 모든 수정 사항은 **원작 및 리버스 엔지니어링 저작물에 대한 존중을 바탕으로** 이루어졌습니다.
 
-https://gorisanson.github.io/pikachu-volleyball/ko/ 에서 이 피카츄 배구를 플레이할 수 있습니다.
+[gorisanson의 오리지널 프로젝트](https://github.com/gorisanson/pikachu-volleyball)에서 포크된 프로젝트입니다.  
+본 버전은 **세종대학교 축제 부스**에서 사용하기 위해 기능 추가 및 커스터마이징이 이루어졌습니다.  
 
-<img src="src/resources/assets/images/screenshot.png" alt="피카츄 배구 게임 스크린샷" width="648">
 
-## 로컬 환경에서 실행하는 방법
+## ▶️ 로컬에서 실행하는 방법
 
-1. 본 저장소를 클론하고 해당 디렉토리로 들어갑니다.
+1. 이 저장소를 클론한 후 디렉토리로 이동합니다.
 
 ```sh
-git clone https://github.com/gorisanson/pikachu-volleyball.git
+git clone https://github.com/developowl/pikachu-volleyball
 cd pikachu-volleyball
 ```
 
-2. 의존하는 패키지를 설치합니다. (오류가 발생한다면, `node v16`와 `npm v8`을 사용해보세요.)
+2. 의존성을 설치합니다. (에러가 발생할 경우 `node v16`, `npm v8`을 사용해보세요.)
 
 ```sh
 npm install
 ```
 
-3. 코드를 번들링 합니다.
+3. `.env` 파일에 토큰을 추가합니다.
+```sh
+URL_TOKEN=your_url_token
+```
+
+4. 코드를 번들링합니다.
 
 ```sh
 npm run build
 ```
 
-4. 로컬 웹 서버를 실행합니다.
+5. 로컬 웹 서버를 실행합니다.
 
 ```sh
 npx http-server dist
 ```
 
-5. 웹 브라우저에서 로컬 웹 서버로 접속합니다. (대부분의 경우, 서버에 접속하기 위한 URL은 `http://localhost:8080` 입니다. 정확한 URL은 터미널에 출력된 메시지에서 확인할 수 있습니다.)
+6. 웹 브라우저에서 로컬 웹 서버에 접속합니다. (대부분 `http://localhost:8080`으로 접속할 수 있으며, 정확한 주소는 터미널에 출력된 메시지에서 확인 가능합니다.)
 
-## 게임 구조
 
-- 물리 엔진: 공과 플레이어(피카츄)의 위치를 계산하는 물리 엔진은 [`src/resources/js/physics.js`](src/resources/js/physics.js) 파일에 담겨 있습니다. (플레이어가 컴퓨터와 대전 시 컴퓨터의 키보드 입력을 결정하는 AI도 동일한 파일에 담겨 있습니다.) 이 소스 코드 파일은 원조 게임의 머신 코드 00403dd0 주소에 위치한 함수를 리버스 엔지니어링하여 작성한 것입니다.
+## 🔧 리팩토링된 주요 기능
 
-- 렌더링: [PixiJS](https://github.com/pixijs/pixi.js) 라이브러리를 사용하였습니다.
+### 1. 🏆 승리 조건 & 듀스 룰
+- 이제 게임은 한 플레이어가 **5점을 획득하면 종료**됩니다.
+- 양쪽이 **4:4 동점**이 되면 **듀스(deuce) 모드**로 진입합니다:
+  - **2점 차 이상**이 나야 승리할 수 있습니다.
 
-더 자세한 사항은 [`src/resources/js/main.js`](src/resources/js/main.js) 파일에 있는 주석에서 볼 수 있습니다.
+### 2. 플레이어 역할 고정
+- **플레이어 1** (왼쪽 피카츄): **부스 참가자**
+- **플레이어 2** (오른쪽 피카츄): **그리디(Greedy) 운영진**
+- 각 역할은 부스 진행을 위해 고정되었습니다.
 
-## 사용한 리버스 엔지니어링 방법
+### 3. 컨트롤 키 설정
 
-다음 프로그램들을 사용했습니다.
+| 플레이어 | 방향 | 키 |
+|----------|------|----|
+| 플레이어 1 (참가자) | 왼쪽 이동 | `← (ArrowLeft)` |
+|                          | 오른쪽 이동 | `→ (ArrowRight)` |
+|                          | 점프 | `↑ (ArrowUp)` |
+|                          | 아래로 | `↓ (ArrowDown)` |
+|                          | 파워 히트 | `Z` |
+| 플레이어 2 (운영진) | 왼쪽 이동 | `K` |
+|                          | 오른쪽 이동 | `;(세미콜론)` |
+|                          | 점프 | `O` |
+|                          | 아래로 | `L` |
+|                          | 파워 히트 | `F` |
 
-- [Ghidra](https://ghidra-sre.org/)
-- [Cheat Engine](https://www.cheatengine.org/)
-- [OllyDbg](http://www.ollydbg.de/)
-- [Resource Hacker](http://www.angusj.com/resourcehacker/)
+### 4. 점수 계산 로직
+플레이어 1(참가자)의 점수 보상은 게임 결과에 따라 계산됩니다:
 
-[Ghidra](https://ghidra-sre.org/)는 머신 코드를 C 코드로 디컴파일할 때 사용했습니다. 디컴파일된 C 코드를 처음 봤을 때는 막막했습니다. 한 가지 이유는 변수들의 이름과 함수들의 이름이 `iVar1`, `iVar2`, `FUN_00402dc0`, `FUN_00403070`, ... 이런 식이라 이게 어떤 변수이고 어떤 역할을 하는 함수인지 알 수 없었기 때문입니다. 공의 좌표 변수가 머신 코드 어느 지점에서 엑세스 되는지 한번 알아나보자는 생각으로 [Cheat Engine](https://www.cheatengine.org/)을 사용하여 해당 위치를 알아내었고, 거기서부터 디컴파일된 C 코드를 읽어내려가니 코드가 해석이 되기 시작했습니다. [OllyDbg](http://www.ollydbg.de/)는 머신 코드의 일부분을 바꾸는데 사용했습니다. 예를 들어, 새 라운드가 시작할 때 "Ready?" 메시지가 깜빡 거리는데 이 때 재생되는 프레임 수가 몇 개인지 세기위해 게임 속도를 느리게 만들 때 사용했습니다. [Resource Hacker](http://www.angusj.com/resourcehacker/)는 게임 리소스(스프라이트, 소리)를 추출할 때 사용했습니다.
+- 🟢 **듀스 전 승리** → `8점` (`winningScore + 3`)
+- 🔴 **듀스 전 패배** → 실제 점수 (`0` ~ `winningScore - 2`)
+- 🟢 **듀스 후 승리** → `6점` (`winningScore + 1`)
+- 🔴 **듀스 후 패배** → `5점` (`winningScore`)
 
-## 원조 게임과 일부러 다르게 한 사항
+- ➕α 스킬 점수 (0.00 ~ 12.00점)
+  > 자체 제작한 내부 점수 집계 로직을 통해 계산됩니다.
 
-키보드 입력이 없는 경우, 얼마의 시간이 지나면 AI 대 AI 경기가 시작됩니다. 원조 게임에서는 이 경기가 약 40초간만 진행됩니다. 이 자바스크립트 버전에서는 이 AI 대 AI 경기의 제한 시간이 없으므로, 마음 놓고 원하는 만큼 관전할 수 있습니다.
+### 5. 점수 제출 모달
+- 게임 종료 시 결과 모달이 표시됩니다.
+- 참가자는 **ID를 입력하여 점수를 리더보드에 제출**할 수 있습니다.
+
+
+## 스냅샷
+
+(위에 있는 `한국어`를 클릭하세요)
+<img width="1920" alt="Screenshot 2025-05-12 at 00 50 30" src="https://github.com/user-attachments/assets/bbeb250c-3ae6-43c8-b359-a738be471be1" />
+<img width="1920" alt="Screenshot 2025-05-12 at 00 51 13" src="https://github.com/user-attachments/assets/56ba91f2-40e3-424b-94b0-2b7249aa7dee" />
+<img width="1920" alt="Screenshot 2025-05-12 at 00 52 31" src="https://github.com/user-attachments/assets/3a40187f-a3d0-41c3-b1f1-e9a0c3675298" />
+
+
+## ⚠️ 서버를 종료해도 localhost:8080이 계속 실행되나요?
+
+`Ctrl + C`로 로컬 서버를 종료했음에도 브라우저가 이전 버전을 계속 보여주거나 `localhost:8080`으로의 요청을 가로채는 경우가 있습니다.
+
+이는 브라우저의 **Service Worker와 캐시 데이터가 여전히 활성화**되어 있기 때문입니다.
+
+### ✅ 해결 방법 1: 사이트 데이터 지우기 (권장)
+1. 크롬 개발자 도구 열기 (`F12` 또는 `Cmd + Option + I`)
+2. **Application** 탭으로 이동
+3. 왼쪽 사이드바에서 **Storage** 선택
+4. **Site data** 아래의 모든 항목 체크 (`Local storage`, `Cookies`, `Cache storage` 등)
+5. **Clear site data** 버튼 클릭
+<img width="1920" alt="Screenshot 2025-05-12 at 00 53 37" src="https://github.com/user-attachments/assets/023334c4-4424-459d-bf32-acf09f3d9c09" />
+6. 페이지 새로고침
+
+이 방법으로 대부분의 문제가 해결됩니다.
+
+---
+
+### ✅ 해결 방법 2: 서비스 워커 등록 해제
+위 방법이 안 될 경우:
+
+1. 크롬 개발자 도구 열기 (`F12` 또는 `Cmd + Option + I`)
+2. **Application** 탭으로 이동
+3. 왼쪽 사이드바에서 **Service Workers** 클릭
+4. **See all registrations** 클릭
+<img width="1920" alt="Screenshot 2025-05-12 at 03 19 04" src="https://github.com/user-attachments/assets/bd669cf5-faf8-4eb5-8548-939e2028170f" />
+5. `localhost:8080`에 등록된 서비스 워커 확인
+6. **Unregister** 클릭
+<img width="1920" alt="Screenshot 2025-05-12 at 01 15 35" src="https://github.com/user-attachments/assets/ba586571-58d3-4a55-ae56-2066f8e4b5af" />
+7. **강력 새로고침** (`Ctrl + Shift + R` 또는 `Cmd + Shift + R`) 수행

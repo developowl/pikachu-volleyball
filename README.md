@@ -1,5 +1,7 @@
 # 🏐 pikachu-volleyball(with Deuce) for use at Sejong University festival booth
 
+_&check;_ _English_ | [_Korean(한국어)_](README.ko.md)
+
 
 > ℹ️ **Disclaimer:**  
 > This project is based on a freeware game and utilizes code that was reverse-engineered by a third-party developer.  
@@ -49,16 +51,16 @@ npx http-server dist
 ## 🔧 Refactored Features
 
 ### 1. 🏆 Win Condition & Deuce Rule
-- The game now ends when a player scores **7 points**.
-- If both players reach **6:6**, the game enters **deuce** mode:
+- The game now ends when a player scores **5 points**.
+- If both players reach **4:4**, the game enters **deuce** mode:
   - A player must lead by at least **2 points** to win.
 
-### 2. 🧍 Player Roles Fixed
+### 2. Player Roles Fixed
 - **Player 1** (left Pikachu) is the **booth participant**.
 - **Player 2** (right Pikachu) is a **Greedy member**.
 - The roles are now fixed for consistent gameplay at events.
 
-### 3. 🎮 🕹️ Updated Controls
+### 3. Updated Controls
 
 | Player | Direction | Key |
 |--------|-----------|-----|
@@ -73,7 +75,7 @@ npx http-server dist
 |                  | Down       | `L` |
 |                  | Power Hit  | `F` |
 
-### 4. 🧮 Score Calculation Logic
+### 4. Score Calculation Logic
 The reward score for Player 1 (booth participant) is calculated based on game result:
 
 - 🟢 Win **before deuce** → `8 points` (`winningScore + 3`)
@@ -81,14 +83,15 @@ The reward score for Player 1 (booth participant) is calculated based on game re
 - 🟢 Win **after deuce** → `6 points` (`winningScore + 1`)
 - 🔴 Lose **after deuce** → `5 points` (`winningScore`)
 
-- + Proficiency Score (0.00 to 12.00 points)
+- ➕α Skill Score (0.00 to 12.00 points)
+  > Skill Score calculated through internal score aggregation logic.
 
-### 5. 📤 Score Submission Modal
+### 5. Score Submission Modal
 - A result modal is now shown when the game ends.
 - The player can **enter their ID** and **submit the score** to the leaderboard.
 
 
-## 🌅 Snapshot
+## Snapshot
 
 
 (please click `Korean(한국어)`)
@@ -130,5 +133,3 @@ If the above method does not work:
 6. Click **Unregister**
 <img width="1920" alt="Screenshot 2025-05-12 at 01 15 35" src="https://github.com/user-attachments/assets/ba586571-58d3-4a55-ae56-2066f8e4b5af" />
 7. Perform a **hard refresh** (`Ctrl + Shift + R`)
-
-
